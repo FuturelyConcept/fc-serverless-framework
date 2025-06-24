@@ -12,20 +12,10 @@
 
     <artifactId>function1</artifactId>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-function-dependencies</artifactId>
-                <version>4.2.1</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
+    <!-- Remove conflicting dependencyManagement - inherit from parent -->
 
     <dependencies>
         <!-- Spring Boot + Cloud Function -->
-
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-function-web</artifactId>
@@ -44,9 +34,9 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>

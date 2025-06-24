@@ -1,4 +1,4 @@
-package com.fc.serverless.sample.function1;
+package com.fc.serverless.sample.function2;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,7 +14,7 @@ public class Function2Application {
     }
 
     @Bean
-    public Function<String, String> low() {
+    public Function<String, String> low2() {
         return t -> t.toLowerCase(Locale.ROOT);
     }
 }

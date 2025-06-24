@@ -6,13 +6,14 @@ import com.fc.serverless.proxy.RemoteFunctionProxyFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 @Configuration
 public class RemoteFunctionAutoConfiguration {
 
     @Bean
-    public BeanPostProcessor remoteFunctionPostProcessor(RemoteFunctionProxyFactory proxyFactory) {
-        return new RemoteFunctionBeanPostProcessor(proxyFactory);
+    public BeanPostProcessor remoteFunctionPostProcessor(RemoteFunctionProxyFactory proxyFactory, Environment environment) {
+        return new RemoteFunctionBeanPostProcessor(proxyFactory, environment);
     }
 
     @Bean
