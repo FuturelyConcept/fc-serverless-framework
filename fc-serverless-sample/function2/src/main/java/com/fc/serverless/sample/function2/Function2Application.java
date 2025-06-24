@@ -14,7 +14,10 @@ public class Function2Application {
     }
 
     @Bean
-    public Function<String, String> low2() {
-        return t -> t.toLowerCase(Locale.ROOT);
+    public Function<String, String> function2() {
+        return t -> {
+            System.out.println("Func 2 called");
+            return t + "KA BEEE";
+        };
     }
 }

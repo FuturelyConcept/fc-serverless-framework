@@ -15,18 +15,17 @@ public class Function1Application {
         SpringApplication.run(Function1Application.class, args);
     }
 
-    @Bean("function1")  // Added explicit name to match application.yml
-    public Function<String, String> function1() {
-        return t -> "Function1 processed: " + t.toLowerCase(Locale.ROOT);
-    }
-
     @Bean("low")
     public Function<String, String> low(@RemoteFunction(name="function2") Function<String, String> f2 ){
-        return t -> t.toLowerCase(Locale.ROOT) + f2.apply(t);
+        System.out.println("f2 fucntion is == " + f2);
+        return t -> "XXX" + t.toUpperCase(Locale.ROOT) + f2.apply(t);
     }
 
     @Bean("sup")
     public Supplier<String> sup() {
         return () -> "Whats up";
     }
+
+
+
 }

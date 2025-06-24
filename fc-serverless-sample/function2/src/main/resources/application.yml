@@ -10,8 +10,6 @@ spring:
       scan:
         packages: com.fc.serverless.sample.function2
 
-function2:
-  url: http://localhost:8082/function2
 logging:
   level:
     org.springframework.cloud.function: DEBUG
