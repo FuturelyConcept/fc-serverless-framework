@@ -14,7 +14,10 @@
     <name>fc-serverless-sample</name>
 
     <modules>
-        <module>function1</module>
-        <module>function2</module>
+        <module>fc-serverless-sample-domain</module>
+        <module>sample-aws-uservalidator</module>
+        <module>sample-aws-orderprocessor</module>
+        <module>sample-aws-inventorychecker</module>
+        <module>sample-aws-paymentprocessor</module>
     </modules>
 </project>

@@ -1,0 +1,30 @@
+server:
+  port: 8084
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: fc-paymentprocessor
+    banner-mode: off
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+  cloud:
+    function:
+      definition: paymentProcessor,sup
+      scan:
+        packages: com.fc.serverless.paymentprocessor
+
+# Logging
+logging:
+  level:
+    com.fdd: DEBUG
+    com.fdd.aws.lambda: DEBUG
+    com.fdd.lambda.orderprocessor: DEBUG
+    org.springframework.security: OFF  # ❌ Turn off security logging
+    root: WARN

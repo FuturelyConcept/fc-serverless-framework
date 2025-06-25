@@ -1,0 +1,105 @@
+package com.fc.serverless.orderprocessor;
+
+import com.fc.serverless.sample.domain.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.function.Function;
+
+/**
+ * 🚀 REVOLUTIONARY FDD ORDER PROCESSOR! 🚀
+ *
+ * This demonstrates the CORE FDD concept:
+ * - Developer writes pure business logic with @Autowired functions
+ * - Since other functions DON'T EXIST locally, FDD creates HTTP proxies automatically!
+ * - Same code works locally AND in distributed Lambda environment
+ * - NO knowledge of Lambda URLs, HTTP calls, or AWS APIs required!
+ */
+@Component("orderProcessor")
+public class OrderProcessorFunction implements Function<CreateOrderRequest, OrderResult> {
+
+    // 🎯 THE MAGIC: These functions DON'T EXIST in this Lambda!
+    // FDD framework will automatically create HTTP proxies to call the other Lambdas!
+
+    @Autowired
+    @Qualifier("userValidator")
+    private Function<UserData, ValidationResult> userValidator;
+
+    @Autowired
+    @Qualifier("inventoryChecker")
+    private Function<InventoryCheckRequest, InventoryResult> inventoryChecker;
+
+    @Autowired
+    @Qualifier("paymentProcessor")
+    private Function<PaymentRequest, PaymentResult> paymentProcessor;
+
+    @Override
+    public OrderResult apply(CreateOrderRequest request) {
+        System.out.println("🚀 DEDICATED OrderProcessor Lambda executing!");
+        System.out.println("🛒 Processing order for: " + (request.getUserData() != null ? request.getUserData().getName() : "null"));
+
+        try {
+            // Step 1: Validate user data
+            // 🌐 This will be an HTTP call to UserValidator Lambda!
+            System.out.println("👤 Calling UserValidator Lambda via FDD proxy...");
+            ValidationResult validation = userValidator.apply(request.getUserData());
+            if (!validation.isValid()) {
+                System.out.println("❌ User validation failed: " + validation.getMessage());
+                return OrderResult.failed("User validation failed: " + validation.getMessage());
+            }
+            System.out.println("✅ User validation passed via cross-Lambda call");
+
+            // Step 2: Check inventory availability
+            // 🌐 This will be an HTTP call to InventoryChecker Lambda!
+            System.out.println("📦 Calling InventoryChecker Lambda via FDD proxy...");
+            InventoryCheckRequest inventoryRequest = new InventoryCheckRequest(
+                    request.getProductId(),
+                    request.getQuantity()
+            );
+            InventoryResult inventoryResult = inventoryChecker.apply(inventoryRequest);
+            if (!inventoryResult.isAvailable()) {
+                System.out.println("❌ Inventory check failed: " + inventoryResult.getMessage());
+                return OrderResult.failed("Inventory check failed: " + inventoryResult.getMessage());
+            }
+            System.out.println("✅ Inventory check passed via cross-Lambda call");
+
+            // Step 3: Process payment
+            // 🌐 This will be an HTTP call to PaymentProcessor Lambda!
+            System.out.println("💳 Calling PaymentProcessor Lambda via FDD proxy...");
+            PaymentRequest paymentRequest = new PaymentRequest(
+                    request.getUserData().getName(),
+                    calculateOrderTotal(request),
+                    "USD",
+                    request.getPaymentMethod() != null ? request.getPaymentMethod() : "CARD",
+                    "temp-order-id"
+            );
+
+            PaymentResult paymentResult = paymentProcessor.apply(paymentRequest);
+            if (!paymentResult.isSuccess()) {
+                System.out.println("❌ Payment failed: " + paymentResult.getMessage());
+                return OrderResult.failed("Payment processing failed: " + paymentResult.getMessage());
+            }
+            System.out.println("✅ Payment processed via cross-Lambda call");
+
+            // Step 4: Create order
+            String orderId = "fdd-cross-lambda-order-" + System.currentTimeMillis();
+            System.out.println("🎉 Order created successfully: " + orderId);
+            System.out.println("🚀 All function calls were made across Lambda boundaries!");
+
+            return OrderResult.success(orderId, paymentResult.getTransactionId());
+
+        } catch (Exception e) {
+            System.err.println("❌ Order processing failed: " + e.getMessage());
+            e.printStackTrace();
+            return OrderResult.failed("Order processing error: " + e.getMessage());
+        }
+    }
+
+    private BigDecimal calculateOrderTotal(CreateOrderRequest request) {
+        BigDecimal unitPrice = new BigDecimal("10.00");
+        return unitPrice.multiply(new BigDecimal(request.getQuantity()));
+    }
+}
