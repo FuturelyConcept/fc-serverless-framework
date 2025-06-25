@@ -6,34 +6,39 @@ server:
 spring:
   application:
     name: fc-orderprocessor
-    banner-mode: off
+  main:
+    web-application-type: servlet
+    allow-bean-definition-overriding: true
   autoconfigure:
     exclude:
-      - org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
       - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
       - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
       - org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration
       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
   cloud:
     function:
-      definition: orderProcessor,sup
+      definition: orderProcessor
       scan:
         packages: com.fc.serverless.orderprocessor
+      web:
+        export:
+          enabled: true
 
+# Remote function URLs for cross-service calls
 userValidator:
-  url: localhost:8082/userValidator
+  url: http://localhost:8082/userValidator
 
 inventoryChecker:
-  url: localhost:8083/inventoryChecker
+  url: http://localhost:8083/inventoryChecker
 
 paymentProcessor:
-  url: localhost:8084/paymentProcessor
+  url: http://localhost:8084/paymentProcessor
 
 # Logging
 logging:
   level:
-    com.fdd: DEBUG
-    com.fdd.aws.lambda: DEBUG
-    com.fdd.lambda.orderprocessor: DEBUG
-    org.springframework.security: OFF  # ❌ Turn off security logging
+    com.fc: DEBUG
+    org.springframework.cloud.function: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: OFF
     root: WARN

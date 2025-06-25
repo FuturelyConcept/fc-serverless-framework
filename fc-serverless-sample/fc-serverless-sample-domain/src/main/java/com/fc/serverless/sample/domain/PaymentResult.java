@@ -1,6 +1,7 @@
-// PaymentResult.java
 package com.fc.serverless.sample.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 
 public class PaymentResult {
@@ -10,7 +11,14 @@ public class PaymentResult {
     private String message;
     private String status;
 
-    private PaymentResult(boolean success, String transactionId, BigDecimal processedAmount, String message, String status) {
+    private PaymentResult() {}
+
+    @JsonCreator
+    private PaymentResult(@JsonProperty("success") boolean success,
+                          @JsonProperty("transactionId") String transactionId,
+                          @JsonProperty("processedAmount") BigDecimal processedAmount,
+                          @JsonProperty("message") String message,
+                          @JsonProperty("status") String status) {
         this.success = success;
         this.transactionId = transactionId;
         this.processedAmount = processedAmount;
@@ -30,10 +38,30 @@ public class PaymentResult {
         return new PaymentResult(false, transactionId, amount, "Payment is being processed", "PENDING");
     }
 
-    // Getters
+    // Getters with JSON annotations
+    @JsonProperty("success")
     public boolean isSuccess() { return success; }
+
+    @JsonProperty("transactionId")
     public String getTransactionId() { return transactionId; }
+
+    @JsonProperty("processedAmount")
     public BigDecimal getProcessedAmount() { return processedAmount; }
+
+    @JsonProperty("message")
     public String getMessage() { return message; }
+
+    @JsonProperty("status")
     public String getStatus() { return status; }
+
+    @Override
+    public String toString() {
+        return "PaymentResult{" +
+                "success=" + success +
+                ", transactionId='" + transactionId + '\'' +
+                ", processedAmount=" + processedAmount +
+                ", message='" + message + '\'' +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }

@@ -1,5 +1,7 @@
-// Enhanced OrderResult.java
 package com.fc.serverless.sample.domain;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class OrderResult {
     private boolean success;
@@ -7,7 +9,13 @@ public class OrderResult {
     private String transactionId;
     private String message;
 
-    private OrderResult(boolean success, String orderId, String transactionId, String message) {
+    private OrderResult() {}
+
+    @JsonCreator
+    private OrderResult(@JsonProperty("success") boolean success,
+                        @JsonProperty("orderId") String orderId,
+                        @JsonProperty("transactionId") String transactionId,
+                        @JsonProperty("message") String message) {
         this.success = success;
         this.orderId = orderId;
         this.transactionId = transactionId;
@@ -26,9 +34,26 @@ public class OrderResult {
         return new OrderResult(false, null, null, message);
     }
 
-    // Getters
+    // Getters with JSON annotations
+    @JsonProperty("success")
     public boolean isSuccess() { return success; }
+
+    @JsonProperty("orderId")
     public String getOrderId() { return orderId; }
+
+    @JsonProperty("transactionId")
     public String getTransactionId() { return transactionId; }
+
+    @JsonProperty("message")
     public String getMessage() { return message; }
+
+    @Override
+    public String toString() {
+        return "OrderResult{" +
+                "success=" + success +
+                ", orderId='" + orderId + '\'' +
+                ", transactionId='" + transactionId + '\'' +
+                ", message='" + message + '\'' +
+                '}';
+    }
 }

@@ -1,6 +1,7 @@
-// PaymentRequest.java
 package com.fc.serverless.sample.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 
 public class PaymentRequest {
@@ -12,7 +13,12 @@ public class PaymentRequest {
 
     public PaymentRequest() {}
 
-    public PaymentRequest(String userId, BigDecimal amount, String currency, String paymentMethod, String orderId) {
+    @JsonCreator
+    public PaymentRequest(@JsonProperty("userId") String userId,
+                          @JsonProperty("amount") BigDecimal amount,
+                          @JsonProperty("currency") String currency,
+                          @JsonProperty("paymentMethod") String paymentMethod,
+                          @JsonProperty("orderId") String orderId) {
         this.userId = userId;
         this.amount = amount;
         this.currency = currency;
@@ -20,19 +26,65 @@ public class PaymentRequest {
         this.orderId = orderId;
     }
 
-    // Getters and setters
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
+    // Getters and setters with JSON annotations
+    @JsonProperty("userId")
+    public String getUserId() {
+        return userId;
+    }
 
-    public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
+    @JsonProperty("userId")
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-    public String getCurrency() { return currency; }
-    public void setCurrency(String currency) { this.currency = currency; }
+    @JsonProperty("amount")
+    public BigDecimal getAmount() {
+        return amount;
+    }
 
-    public String getPaymentMethod() { return paymentMethod; }
-    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+    @JsonProperty("amount")
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
 
-    public String getOrderId() { return orderId; }
-    public void setOrderId(String orderId) { this.orderId = orderId; }
+    @JsonProperty("currency")
+    public String getCurrency() {
+        return currency;
+    }
+
+    @JsonProperty("currency")
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    @JsonProperty("paymentMethod")
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    @JsonProperty("paymentMethod")
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    @JsonProperty("orderId")
+    public String getOrderId() {
+        return orderId;
+    }
+
+    @JsonProperty("orderId")
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
+    @Override
+    public String toString() {
+        return "PaymentRequest{" +
+                "userId='" + userId + '\'' +
+                ", amount=" + amount +
+                ", currency='" + currency + '\'' +
+                ", paymentMethod='" + paymentMethod + '\'' +
+                ", orderId='" + orderId + '\'' +
+                '}';
+    }
 }
