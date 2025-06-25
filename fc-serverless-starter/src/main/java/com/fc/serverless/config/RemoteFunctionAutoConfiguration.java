@@ -15,6 +15,11 @@ import org.springframework.core.env.Environment;
 public class RemoteFunctionAutoConfiguration {
 
     @Bean
+    public static EnvironmentPropertyResolver environmentPropertyResolver() {
+        return new EnvironmentPropertyResolver();
+    }
+
+    @Bean
     public static RemoteFunctionProxyFactory proxyFactory() {
         return new RemoteFunctionProxyFactory();
     }

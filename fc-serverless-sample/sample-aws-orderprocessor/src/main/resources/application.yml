@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: ${PORT:8081}
   servlet:
     context-path: /
 
@@ -9,6 +9,7 @@ spring:
   main:
     web-application-type: servlet
     allow-bean-definition-overriding: true
+    lazy-initialization: ${LAMBDA_MODE:false}  # Enable lazy init in Lambda
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
@@ -28,21 +29,45 @@ spring:
       fail-on-empty-beans: false
     deserialization:
       fail-on-unknown-properties: false
+
 # Remote function URLs for cross-service calls
+# Option 1: Direct property configuration (backward compatibility)
 userValidator:
-  url: http://localhost:8082/userValidator
+  url: ${FC_LAMBDA_URL_USERVALIDATOR:http://localhost:8082/userValidator}
 
 inventoryChecker:
-  url: http://localhost:8083/inventoryChecker
+  url: ${FC_LAMBDA_URL_INVENTORYCHECKER:http://localhost:8083/inventoryChecker}
 
 paymentProcessor:
-  url: http://localhost:8084/paymentProcessor
+  url: ${FC_LAMBDA_URL_PAYMENTPROCESSOR:http://localhost:8084/paymentProcessor}
+
+# Option 2: FC Framework configuration (recommended for new projects)
+fc:
+  functions:
+    # Configure specific ports for local development
+    userValidator:
+      port: 8082
+    inventoryChecker:
+      port: 8083
+    paymentProcessor:
+      port: 8084
+    # Global configuration
+    default:
+      port:
+        base: 8080  # Base port for auto-generated ports
+
+# Environment detection
+environment:
+  type: ${ENVIRONMENT_TYPE:local}
+  lambda: ${AWS_LAMBDA_FUNCTION_NAME:#{null}}
 
 # Logging
 logging:
   level:
-    com.fc: DEBUG
-    org.springframework.cloud.function: DEBUG
-    org.springframework.web: DEBUG
+    com.fc: ${LOG_LEVEL:DEBUG}
+    org.springframework.cloud.function: ${LOG_LEVEL:DEBUG}
+    org.springframework.web: WARN
     org.springframework.security: OFF
-    root: WARN
+    root: ${ROOT_LOG_LEVEL:WARN}
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

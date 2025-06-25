@@ -1,16 +1,14 @@
-# Common application.yml for all Lambda functions
 server:
-  port: ${PORT:8080}
+  port: 8082
   servlet:
     context-path: /
 
 spring:
   application:
-    name: ${SPRING_APPLICATION_NAME:fc-lambda-function}
+    name: fc-uservalidator
   main:
     web-application-type: servlet
     allow-bean-definition-overriding: true
-    lazy-initialization: true  # Optimize cold start
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
@@ -19,34 +17,23 @@ spring:
       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
   cloud:
     function:
-      definition: ${FUNCTION_NAME:paymentProcessor}
+      definition: userValidator
       scan:
-        packages: ${SCAN_PACKAGES:com.fc.serverless.paymentprocessor}
+        packages: com.fc.serverless.uservalidator
       web:
         export:
           enabled: true
   jackson:
     serialization:
       fail-on-empty-beans: false
-      write-dates-as-timestamps: false
     deserialization:
       fail-on-unknown-properties: false
-      accept-empty-string-as-null-object: true
 
-# AWS Lambda optimization
-aws:
-  lambda:
-    # Enable AWS Lambda runtime optimizations
-    optimization:
-      enabled: true
-
-# Logging optimized for CloudWatch
+# Logging
 logging:
   level:
-    com.fc: INFO
-    org.springframework.cloud.function: WARN
-    org.springframework.web: WARN
+    com.fc: DEBUG
+    org.springframework.cloud.function: DEBUG
+    org.springframework.web: DEBUG
     org.springframework.security: OFF
     root: WARN
-  pattern:
-    console: "%d{HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] %logger{36} - %msg%n"

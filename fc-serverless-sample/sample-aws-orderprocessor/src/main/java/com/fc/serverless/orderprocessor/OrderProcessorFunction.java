@@ -9,28 +9,22 @@ import java.math.BigDecimal;
 import java.util.function.Function;
 
 /**
- * 🚀 REVOLUTIONARY FC ORDER PROCESSOR! 🚀
- *
  * This demonstrates the CORE FC concept:
- * - Developer writes pure business logic with @Autowired functions
+ * - Developer writes pure business logic with @RemoteFunction functions
  * - Since other functions DON'T EXIST locally, FC creates HTTP proxies automatically!
  * - Same code works locally AND in distributed Lambda environment
  * - NO knowledge of Lambda URLs, HTTP calls, or AWS APIs required!
  */
 public class OrderProcessorFunction implements Function<CreateOrderRequest, OrderResult> {
 
-    // 🎯 THE MAGIC: These functions DON'T EXIST in this Lambda!
     // FC framework will automatically create HTTP proxies to call the other Lambdas!
 
-    //@Autowired
     @RemoteFunction(name = "userValidator")
     private Function<UserData, ValidationResult> userValidator;
 
-    //@Autowired
     @RemoteFunction(name = "inventoryChecker")
     private Function<InventoryCheckRequest, InventoryResult> inventoryChecker;
 
-    //@Autowired
     @RemoteFunction(name = "paymentProcessor")
     private Function<PaymentRequest, PaymentResult> paymentProcessor;
 
