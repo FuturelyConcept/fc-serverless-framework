@@ -11,7 +11,6 @@ import java.lang.reflect.Field;
 public class RemoteFunctionBeanPostProcessor implements BeanPostProcessor {
 
     private final RemoteFunctionProxyFactory proxyFactory;
-
     private final Environment environment;
 
     public RemoteFunctionBeanPostProcessor(RemoteFunctionProxyFactory proxyFactory, Environment environment) {
@@ -21,14 +20,23 @@ public class RemoteFunctionBeanPostProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        for (Field field : bean.getClass().getDeclaredFields()) {
+        Class<?> clazz = bean.getClass();
+
+        // Handle CGLIB proxies
+        if (clazz.getName().contains("$$")) {
+            clazz = clazz.getSuperclass();
+        }
+
+        for (Field field : clazz.getDeclaredFields()) {
             if (field.isAnnotationPresent(RemoteFunction.class)) {
                 field.setAccessible(true);
                 try {
-                    Object proxy = proxyFactory.createProxy(field.getType(), field.getAnnotation(RemoteFunction.class), environment);
+                    RemoteFunction annotation = field.getAnnotation(RemoteFunction.class);
+                    Object proxy = proxyFactory.createProxy(field.getType(), annotation, environment);
                     field.set(bean, proxy);
+                    System.out.println("🔗 Injected remote function proxy for: " + annotation.name() + " into " + beanName);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Failed to inject remote function proxy for field: " + field.getName(), e);
                 }
             }
         }

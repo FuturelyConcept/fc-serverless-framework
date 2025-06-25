@@ -4,7 +4,6 @@ import com.fc.serverless.sample.domain.*;
 import com.fc.serverless.core.annotation.RemoteFunction;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.function.Function;
@@ -18,21 +17,20 @@ import java.util.function.Function;
  * - Same code works locally AND in distributed Lambda environment
  * - NO knowledge of Lambda URLs, HTTP calls, or AWS APIs required!
  */
-@Component
 public class OrderProcessorFunction implements Function<CreateOrderRequest, OrderResult> {
 
     // 🎯 THE MAGIC: These functions DON'T EXIST in this Lambda!
     // FC framework will automatically create HTTP proxies to call the other Lambdas!
 
-    @Autowired
+    //@Autowired
     @RemoteFunction(name = "userValidator")
     private Function<UserData, ValidationResult> userValidator;
 
-    @Autowired
+    //@Autowired
     @RemoteFunction(name = "inventoryChecker")
     private Function<InventoryCheckRequest, InventoryResult> inventoryChecker;
 
-    @Autowired
+    //@Autowired
     @RemoteFunction(name = "paymentProcessor")
     private Function<PaymentRequest, PaymentResult> paymentProcessor;
 

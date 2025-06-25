@@ -26,18 +26,44 @@ public class RemoteFunctionProxyFactory {
         String functionName = annotation.name();
 
         InvocationHandler handler = (proxy, method, args) -> {
-            // Very basic logic to convert args to JSON string and call REST
-            String url = environment.getProperty(functionName + ".url");
+            try {
+                // Get the URL for the remote function
+                String url = environment.getProperty(functionName + ".url");
 
-            if (url == null) throw new RuntimeException("Missing URL for " + functionName);
+                if (url == null) {
+                    throw new RuntimeException("Missing URL configuration for remote function: " + functionName +
+                            ". Please add " + functionName + ".url property to application.yml");
+                }
 
-            String jsonInput = objectMapper.writeValueAsString(args[0]);
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<String> request = new HttpEntity<>(jsonInput, headers);
+                System.out.println("🌐 Making remote call to: " + functionName + " at " + url);
 
-            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-            return objectMapper.readValue(response.getBody(), Object.class);
+                // Convert the first argument to JSON
+                String jsonInput = objectMapper.writeValueAsString(args[0]);
+                System.out.println("📤 Request: " + jsonInput);
+
+                // Set up HTTP headers
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+
+                HttpEntity<String> request = new HttpEntity<>(jsonInput, headers);
+
+                // Make the HTTP call
+                ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+                System.out.println("📥 Response: " + response.getBody());
+
+                // Convert response back to the expected return type
+                Class<?> returnType = method.getReturnType();
+                Object result = objectMapper.readValue(response.getBody(), returnType);
+
+                System.out.println("✅ Remote call successful for: " + functionName);
+                return result;
+
+            } catch (Exception e) {
+                System.err.println("❌ Remote call failed for: " + functionName + " - " + e.getMessage());
+                e.printStackTrace();
+                throw new RuntimeException("Remote function call failed: " + functionName, e);
+            }
         };
 
         return Proxy.newProxyInstance(
