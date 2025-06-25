@@ -1,22 +1,33 @@
 package com.fc.serverless.uservalidator;
 
+import com.fc.serverless.sample.domain.UserData;
+import com.fc.serverless.sample.domain.ValidationResult;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import java.util.function.Supplier;
+import org.springframework.context.annotation.ComponentScan;
+
+import java.util.function.Function;
+
 /**
  * 🚀 Dedicated UserValidator Lambda Application
  * ONLY contains UserValidationFunction - nothing else!
  */
 @SpringBootApplication
+@ComponentScan(basePackages = {
+        "com.fc.serverless.uservalidator",
+        "com.fc.serverless.config"
+})
 public class UserValidatorApplication {
+
     public static void main(String[] args) {
-        System.out.println("🚀 FDD UserValidator Lambda starting...");
+        System.out.println("🚀 FC UserValidator Lambda starting...");
         SpringApplication.run(UserValidatorApplication.class, args);
     }
 
-    @Bean("sup")
-    public Supplier<String> sup() {
-        return () -> "Whats up";
+    // Explicitly define the function bean to avoid Spring Cloud Function conflicts
+    @Bean("userValidator")
+    public Function<UserData, ValidationResult> userValidator() {
+        return new UserValidationFunction();
     }
 }

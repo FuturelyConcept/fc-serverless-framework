@@ -30,6 +30,12 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Explicit Jackson dependency for JSON processing -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
         <!-- 🚀 FDD AWS Lambda Integration -->
         <dependency>
             <groupId>com.fc</groupId>
