@@ -1,6 +1,7 @@
 package com.fc.serverless.sample.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -22,6 +23,7 @@ public class UserData {
         this.age = age;
     }
 
+    @JsonIgnore // Don't include this in JSON serialization
     public boolean isValid() {
         return name != null && !name.trim().isEmpty() &&
                 email != null && email.contains("@") &&

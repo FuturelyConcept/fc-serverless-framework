@@ -23,7 +23,11 @@ spring:
       web:
         export:
           enabled: true
-
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
 # Remote function URLs for cross-service calls
 userValidator:
   url: http://localhost:8082/userValidator

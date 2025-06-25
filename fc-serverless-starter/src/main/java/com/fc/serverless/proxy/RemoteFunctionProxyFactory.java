@@ -37,8 +37,9 @@ public class RemoteFunctionProxyFactory {
 
                 System.out.println("🌐 Making remote call to: " + functionName + " at " + url);
 
-                // Convert the first argument to JSON
-                String jsonInput = objectMapper.writeValueAsString(args[0]);
+                // Convert the first argument to JSON - this ensures clean serialization
+                Object inputArg = args[0];
+                String jsonInput = objectMapper.writeValueAsString(inputArg);
                 System.out.println("📤 Request: " + jsonInput);
 
                 // Set up HTTP headers
@@ -50,7 +51,8 @@ public class RemoteFunctionProxyFactory {
 
                 // Make the HTTP call
                 ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-                System.out.println("📥 Response: " + response.getBody());
+                System.out.println("📥 Response status: " + response.getStatusCode());
+                System.out.println("📥 Response body: " + response.getBody());
 
                 // Convert response back to the expected return type
                 Class<?> returnType = method.getReturnType();

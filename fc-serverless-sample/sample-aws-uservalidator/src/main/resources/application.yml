@@ -23,6 +23,11 @@ spring:
       web:
         export:
           enabled: true
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
 
 # Logging
 logging:
