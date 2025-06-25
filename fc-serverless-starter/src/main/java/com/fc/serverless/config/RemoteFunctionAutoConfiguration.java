@@ -8,7 +8,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 
 @Configuration
-@Import(JacksonAutoConfiguration.class)
+@Import({
+        JacksonAutoConfiguration.class,
+        WebMvcAutoConfiguration.class
+})
 public class RemoteFunctionAutoConfiguration {
 
     @Bean

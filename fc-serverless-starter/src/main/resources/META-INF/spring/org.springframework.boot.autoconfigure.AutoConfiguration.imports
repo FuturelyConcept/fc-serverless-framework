@@ -1,2 +1,3 @@
 com.fc.serverless.config.RemoteFunctionAutoConfiguration
 com.fc.serverless.config.JacksonAutoConfiguration
+com.fc.serverless.config.WebMvcAutoConfiguration
