@@ -14,10 +14,6 @@ import java.util.function.Function;
  * ONLY contains OrderProcessorFunction - nothing else!
  */
 @SpringBootApplication
-@ComponentScan(basePackages = {
-        "com.fc.serverless.orderprocessor",
-        "com.fc.serverless.config"
-})
 public class OrderProcessorApplication {
 
     public static void main(String[] args) {

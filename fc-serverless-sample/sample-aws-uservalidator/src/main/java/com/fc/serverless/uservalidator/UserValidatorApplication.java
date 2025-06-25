@@ -14,10 +14,6 @@ import java.util.function.Function;
  * ONLY contains UserValidationFunction - nothing else!
  */
 @SpringBootApplication
-@ComponentScan(basePackages = {
-        "com.fc.serverless.uservalidator",
-        "com.fc.serverless.config"
-})
 public class UserValidatorApplication {
 
     public static void main(String[] args) {

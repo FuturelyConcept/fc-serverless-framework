@@ -14,10 +14,6 @@ import java.util.function.Function;
  * ONLY contains InventoryCheckFunction - nothing else!
  */
 @SpringBootApplication
-@ComponentScan(basePackages = {
-        "com.fc.serverless.inventorychecker",
-        "com.fc.serverless.config"
-})
 public class InventoryCheckerApplication {
 
     public static void main(String[] args) {

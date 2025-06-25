@@ -14,10 +14,6 @@ import java.util.function.Function;
  * ONLY contains PaymentProcessorFunction - nothing else!
  */
 @SpringBootApplication
-@ComponentScan(basePackages = {
-        "com.fc.serverless.paymentprocessor",
-        "com.fc.serverless.config"
-})
 public class PaymentProcessorApplication {
 
     public static void main(String[] args) {
