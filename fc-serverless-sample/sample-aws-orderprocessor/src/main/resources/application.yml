@@ -31,15 +31,9 @@ spring:
       fail-on-unknown-properties: false
 
 # Remote function URLs for cross-service calls
-# Option 1: Direct property configuration (backward compatibility)
-userValidator:
-  url: ${FC_LAMBDA_URL_USERVALIDATOR:http://localhost:8082/userValidator}
-
-inventoryChecker:
-  url: ${FC_LAMBDA_URL_INVENTORYCHECKER:http://localhost:8083/inventoryChecker}
-
-paymentProcessor:
-  url: ${FC_LAMBDA_URL_PAYMENTPROCESSOR:http://localhost:8084/paymentProcessor}
+# Remote function URL
+priceCalculator:
+  url: ${FC_LAMBDA_URL_PRICECALCULATOR:http://localhost:8082/priceCalculator}
 
 # Option 2: FC Framework configuration (recommended for new projects)
 fc:

@@ -6,7 +6,7 @@ Revolutionary **Serverless by Design Programming** approach that enables develop
 
 FC (FuturelyConcept) Serverless Framework transforms how you build distributed serverless applications by:
 
-- ✅ **Pure Business Logic** - Write standard `java.util.Function` components with zero framework pollution
+- ✅ **Pure Business Logic** - Write standard `java.util.Function` and `Supplier` components with zero framework pollution
 - ✅ **Transparent Cross-Service Calls** - Framework automatically creates HTTP proxies for `@RemoteFunction` annotated dependencies
 - ✅ **Zero Learning Curve** - Uses familiar Spring Boot patterns and annotations
 - ✅ **Local Development** - Same code works locally and in distributed Lambda environment
@@ -21,7 +21,7 @@ Traditional serverless development forces you to think about infrastructure conc
 |------------------------|--------------|
 | ❌ Manual HTTP clients and URL management | ✅ Transparent `@RemoteFunction` proxies |
 | ❌ No compile-time validation between services | ✅ Full type safety with IDE autocomplete |
-| ❌ Different code for local vs cloud environments | ✅ Same code works everywhere |
+| ✅ Different code for local vs cloud environments | ✅ Same code works everywhere |
 | ❌ Framework-specific learning curve | ✅ Standard Spring Boot patterns |
 | ❌ Hard to test cross-service interactions | ✅ Standard Mockito testing |
 
@@ -38,21 +38,17 @@ mvn clean install
 ### 2. Run Sample Application Locally
 
 ```bash
-# Terminal 1 - User Validator (Port 8082)
-cd fc-serverless-sample/sample-aws-uservalidator
-mvn spring-boot:run -Dspring-boot.run.profiles=local
+# Terminal 1 - Config Supplier (Port 8083)
+cd fc-serverless-sample/sample-configsupplier
+mvn spring-boot:run
 
-# Terminal 2 - Inventory Checker (Port 8083)
-cd fc-serverless-sample/sample-aws-inventorychecker
-mvn spring-boot:run -Dspring-boot.run.profiles=local
+# Terminal 2 - Price Calculator (Port 8082)
+cd fc-serverless-sample/sample-pricecalculator
+mvn spring-boot:run
 
-# Terminal 3 - Payment Processor (Port 8084)
-cd fc-serverless-sample/sample-aws-paymentprocessor
-mvn spring-boot:run -Dspring-boot.run.profiles=local
-
-# Terminal 4 - Order Processor (Port 8081)
-cd fc-serverless-sample/sample-aws-orderprocessor
-mvn spring-boot:run -Dspring-boot.run.profiles=local
+# Terminal 3 - Order Processor (Port 8081)
+cd fc-serverless-sample/sample-orderprocessor
+mvn spring-boot:run
 ```
 
 ### 3. Test the Complete Flow
@@ -61,14 +57,9 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 curl -X POST http://localhost:8081/orderProcessor \
   -H "Content-Type: application/json" \
   -d '{
-    "userData": {
-      "name": "John Doe",
-      "email": "john@example.com",
-      "age": 25
-    },
-    "productId": "product-123",
-    "quantity": 50,
-    "paymentMethod": "CREDIT_CARD"
+    "productId": "widget-123",
+    "quantity": 5,
+    "customerType": "PREMIUM"
   }'
 ```
 
@@ -76,10 +67,33 @@ Expected response:
 ```json
 {
   "success": true,
-  "orderId": "order-1234567890",
-  "message": "Order processed successfully"
+  "orderId": "order-1706123456789",
+  "totalPrice": 134.96,
+  "message": "Order processed successfully! Premium customer discount applied. Total: $134.96"
 }
 ```
+
+## 🏗️ Simple 3-Lambda Architecture
+
+```
+OrderProcessor (Lambda 1)
+       │
+       │ @RemoteFunction(name = "priceCalculator")
+       │ Function<OrderRequest, PriceInfo>
+       ▼
+PriceCalculator (Lambda 2)  
+       │
+       │ @RemoteFunction(name = "configSupplier")
+       │ Supplier<PricingConfig>
+       ▼
+ConfigSupplier (Lambda 3)
+```
+
+**Key Learning Points:**
+- **Function Interface**: Standard request/response with type safety
+- **Supplier Interface**: Configuration/settings retrieval (no input required)
+- **Transparent Proxies**: No HTTP code in business logic
+- **Environment Agnostic**: Same code works locally and in AWS Lambda
 
 ## 🧩 Core Concepts
 
@@ -88,18 +102,12 @@ Expected response:
 Write clean business logic with zero framework dependencies:
 
 ```java
-@Component
-public class UserValidatorFunction implements Function<UserData, ValidationResult> {
+@Component("configSupplier")
+public class ConfigSupplierFunction implements Supplier<PricingConfig> {
     @Override
-    public ValidationResult apply(UserData userData) {
+    public PricingConfig get() {
         // Pure business logic - no HTTP, no URLs, no framework clutter
-        if (userData.getAge() < 18) {
-            return ValidationResult.invalid("Must be 18 or older");
-        }
-        if (!userData.getEmail().contains("@")) {
-            return ValidationResult.invalid("Invalid email format");
-        }
-        return ValidationResult.valid("User data is valid");
+        return PricingConfig.defaultConfig();
     }
 }
 ```
@@ -109,84 +117,63 @@ public class UserValidatorFunction implements Function<UserData, ValidationResul
 Use `@RemoteFunction` to automatically create HTTP proxies to other services:
 
 ```java
-@Component
-public class OrderProcessorFunction implements Function<CreateOrderRequest, OrderResult> {
+@Component("orderProcessor")
+public class OrderProcessorFunction implements Function<OrderRequest, OrderResult> {
 
-    // FC Framework automatically creates HTTP proxies for these!
-    @RemoteFunction(name = "userValidator")
-    private Function<UserData, ValidationResult> userValidator;
-
-    @RemoteFunction(name = "inventoryChecker")
-    private Function<InventoryCheckRequest, InventoryResult> inventoryChecker;
-
-    @RemoteFunction(name = "paymentProcessor")
-    private Function<PaymentRequest, PaymentResult> paymentProcessor;
+    // FC Framework automatically creates HTTP proxy for this!
+    @RemoteFunction(name = "priceCalculator")
+    private Function<OrderRequest, PriceInfo> priceCalculator;
 
     @Override
-    public OrderResult apply(CreateOrderRequest request) {
-        // These calls automatically become HTTP requests to other Lambdas!
-        ValidationResult validation = userValidator.apply(request.getUserData());
-        if (!validation.isValid()) {
-            return OrderResult.failed("User validation failed: " + validation.getMessage());
-        }
-
-        InventoryResult inventory = inventoryChecker.apply(
-            new InventoryCheckRequest(request.getProductId(), request.getQuantity())
-        );
-        if (!inventory.isAvailable()) {
-            return OrderResult.failed("Inventory check failed: " + inventory.getMessage());
-        }
-
-        PaymentResult payment = paymentProcessor.apply(
-            new PaymentRequest(request.getUserData().getName(), 
-                              calculateTotal(request), "USD", request.getPaymentMethod())
-        );
-        if (!payment.isSuccess()) {
-            return OrderResult.failed("Payment failed: " + payment.getMessage());
-        }
-
-        return OrderResult.success(generateOrderId());
+    public OrderResult apply(OrderRequest request) {
+        // This call automatically becomes an HTTP request to PriceCalculator Lambda!
+        PriceInfo priceInfo = priceCalculator.apply(request);
+        
+        String orderId = "order-" + System.currentTimeMillis();
+        return OrderResult.success(orderId, priceInfo.getTotalPrice(), 
+                                 "Order processed successfully! " + priceInfo.getDiscountReason());
     }
 }
 ```
 
-### 3. Configuration-Based URL Resolution
+### 3. Multi-Interface Support
+
+The framework supports different functional interfaces seamlessly:
+
+```java
+@Component("priceCalculator")
+public class PriceCalculatorFunction implements Function<OrderRequest, PriceInfo> {
+
+    // Supplier interface - no input parameters needed!
+    @RemoteFunction(name = "configSupplier")
+    private Supplier<PricingConfig> configSupplier;
+
+    @Override
+    public PriceInfo apply(OrderRequest request) {
+        // Get configuration using Supplier (HTTP GET call)
+        PricingConfig config = configSupplier.get();
+        
+        // Apply business logic using configuration
+        return calculatePrice(request, config);
+    }
+}
+```
+
+### 4. Configuration-Based URL Resolution
 
 Environment-specific configuration in `application.yml`:
 
 ```yaml
 # Local development
-userValidator:
-  url: http://localhost:8082/userValidator
+priceCalculator:
+  url: http://localhost:8082/priceCalculator
 
-inventoryChecker:
-  url: http://localhost:8083/inventoryChecker
-
-paymentProcessor:
-  url: http://localhost:8084/paymentProcessor
+configSupplier:
+  url: http://localhost:8083/configSupplier
 
 # AWS Lambda (environment variables)
-# FC_LAMBDA_URL_USERVALIDATOR=https://xyz.lambda-url.us-east-1.on.aws/
-# FC_LAMBDA_URL_INVENTORYCHECKER=https://abc.lambda-url.us-east-1.on.aws/
-# FC_LAMBDA_URL_PAYMENTPROCESSOR=https://def.lambda-url.us-east-1.on.aws/
-```
-
-## 🏗️ Architecture
-
-```
-┌─────────────────┐    HTTP     ┌─────────────────┐
-│   Order         │────────────▶│  User           │
-│   Processor     │             │  Validator      │
-│   Lambda        │             │  Lambda         │
-└─────────────────┘             └─────────────────┘
-         │                               
-         │ HTTP                          
-         ▼                               
-┌─────────────────┐    HTTP     ┌─────────────────┐
-│   Inventory     │────────────▶│  Payment        │
-│   Checker       │             │  Processor      │
-│   Lambda        │             │  Lambda         │
-└─────────────────┘             └─────────────────┘
+# FC_LAMBDA_URL_PRICECALCULATOR=https://xyz.lambda-url.us-east-1.on.aws/
+# FC_LAMBDA_URL_CONFIGSUPPLIER=https://abc.lambda-url.us-east-1.on.aws/
 ```
 
 ## 📁 Project Structure
@@ -203,12 +190,15 @@ fc-serverless-framework/
 │   │   └── EnvironmentPropertyResolver.java
 │   └── proxy/
 │       └── RemoteFunctionProxyFactory.java
-└── fc-serverless-sample/         # Complete sample application
-    ├── fc-serverless-sample-domain/     # Shared domain objects
-    ├── sample-aws-uservalidator/        # User validation microservice
-    ├── sample-aws-inventorychecker/     # Inventory checking microservice
-    ├── sample-aws-paymentprocessor/     # Payment processing microservice
-    └── sample-aws-orderprocessor/       # Order orchestration microservice
+└── fc-serverless-sample/         # Simple 3-Lambda demonstration
+    ├── fc-sample-domain/         # Shared domain objects
+    │   ├── OrderRequest.java
+    │   ├── OrderResult.java
+    │   ├── PriceInfo.java
+    │   └── PricingConfig.java
+    ├── sample-orderprocessor/     # Lambda 1: Orchestrator
+    ├── sample-pricecalculator/    # Lambda 2: Business Logic
+    └── sample-configsupplier/     # Lambda 3: Configuration Provider
 ```
 
 ## 🚀 Deployment to AWS Lambda
@@ -220,31 +210,35 @@ fc-serverless-framework/
 mvn clean package
 
 # Each function creates a deployment JAR in target/
-ls fc-serverless-sample/sample-aws-*/target/*.jar
+ls fc-serverless-sample/sample-*/target/*.jar
 ```
 
 ### 2. Deploy Functions (Example using AWS CLI)
 
 ```bash
-# Deploy User Validator
-aws lambda update-function-code \
-  --function-name fc-uservalidator \
-  --zip-file fileb://fc-serverless-sample/sample-aws-uservalidator/target/sample-aws-uservalidator-1.0-SNAPSHOT.jar
+# Deploy Config Supplier
+aws lambda create-function \
+  --function-name fdd-demo-configSupplier \
+  --runtime java17 \
+  --role arn:aws:iam::YOUR_ACCOUNT:role/lambda-execution-role \
+  --handler org.springframework.cloud.function.adapter.aws.FunctionInvoker \
+  --zip-file fileb://fc-serverless-sample/sample-configsupplier/target/sample-configsupplier-1.0-SNAPSHOT.jar
 
-# Deploy Inventory Checker
-aws lambda update-function-code \
-  --function-name fc-inventorychecker \
-  --zip-file fileb://fc-serverless-sample/sample-aws-inventorychecker/target/sample-aws-inventorychecker-1.0-SNAPSHOT.jar
-
-# Deploy Payment Processor
-aws lambda update-function-code \
-  --function-name fc-paymentprocessor \
-  --zip-file fileb://fc-serverless-sample/sample-aws-paymentprocessor/target/sample-aws-paymentprocessor-1.0-SNAPSHOT.jar
+# Deploy Price Calculator
+aws lambda create-function \
+  --function-name fdd-demo-priceCalculator \
+  --runtime java17 \
+  --role arn:aws:iam::YOUR_ACCOUNT:role/lambda-execution-role \
+  --handler org.springframework.cloud.function.adapter.aws.FunctionInvoker \
+  --zip-file fileb://fc-serverless-sample/sample-pricecalculator/target/sample-pricecalculator-1.0-SNAPSHOT.jar
 
 # Deploy Order Processor
-aws lambda update-function-code \
-  --function-name fc-orderprocessor \
-  --zip-file fileb://fc-serverless-sample/sample-aws-orderprocessor/target/sample-aws-orderprocessor-1.0-SNAPSHOT.jar
+aws lambda create-function \
+  --function-name fdd-demo-orderProcessor \
+  --runtime java17 \
+  --role arn:aws:iam::YOUR_ACCOUNT:role/lambda-execution-role \
+  --handler org.springframework.cloud.function.adapter.aws.FunctionInvoker \
+  --zip-file fileb://fc-serverless-sample/sample-orderprocessor/target/sample-orderprocessor-1.0-SNAPSHOT.jar
 ```
 
 ### 3. Configure Lambda URLs
@@ -252,90 +246,124 @@ aws lambda update-function-code \
 Each Lambda function needs a Function URL for HTTP access:
 
 ```bash
-# Create function URLs for each Lambda
+# Create function URLs
 aws lambda create-function-url-config \
-  --function-name fc-uservalidator \
+  --function-name fdd-demo-configSupplier \
+  --auth-type NONE \
+  --cors '{"AllowMethods":["GET"],"AllowOrigins":["*"]}'
+
+aws lambda create-function-url-config \
+  --function-name fdd-demo-priceCalculator \
   --auth-type NONE \
   --cors '{"AllowMethods":["POST"],"AllowOrigins":["*"]}'
 
 aws lambda create-function-url-config \
-  --function-name fc-inventorychecker \
+  --function-name fdd-demo-orderProcessor \
   --auth-type NONE \
   --cors '{"AllowMethods":["POST"],"AllowOrigins":["*"]}'
 
-aws lambda create-function-url-config \
-  --function-name fc-paymentprocessor \
-  --auth-type NONE \
-  --cors '{"AllowMethods":["POST"],"AllowOrigins":["*"]}'
+# Add permissions for public access
+aws lambda add-permission \
+  --function-name fdd-demo-configSupplier \
+  --statement-id "FunctionURLAllowPublicAccess" \
+  --action "lambda:InvokeFunctionUrl" \
+  --principal "*" \
+  --function-url-auth-type "NONE"
 
-aws lambda create-function-url-config \
-  --function-name fc-orderprocessor \
-  --auth-type NONE \
-  --cors '{"AllowMethods":["POST"],"AllowOrigins":["*"]}'
+aws lambda add-permission \
+  --function-name fdd-demo-priceCalculator \
+  --statement-id "FunctionURLAllowPublicAccess" \
+  --action "lambda:InvokeFunctionUrl" \
+  --principal "*" \
+  --function-url-auth-type "NONE"
+
+aws lambda add-permission \
+  --function-name fdd-demo-orderProcessor \
+  --statement-id "FunctionURLAllowPublicAccess" \
+  --action "lambda:InvokeFunctionUrl" \
+  --principal "*" \
+  --function-url-auth-type "NONE"
 ```
 
 ### 4. Set Environment Variables
 
-Update the Order Processor Lambda with URLs of other functions:
+Update Lambda functions with URLs of their dependencies:
 
 ```bash
+# Configure PriceCalculator to call ConfigSupplier
 aws lambda update-function-configuration \
-  --function-name fc-orderprocessor \
+  --function-name fdd-demo-priceCalculator \
   --environment Variables='{
-    "FC_LAMBDA_URL_USERVALIDATOR":"https://xyz.lambda-url.us-east-1.on.aws/",
-    "FC_LAMBDA_URL_INVENTORYCHECKER":"https://abc.lambda-url.us-east-1.on.aws/",
-    "FC_LAMBDA_URL_PAYMENTPROCESSOR":"https://def.lambda-url.us-east-1.on.aws/"
+    "FC_LAMBDA_URL_CONFIGSUPPLIER":"https://config-url.lambda-url.us-east-1.on.aws/"
+  }'
+
+# Configure OrderProcessor to call PriceCalculator
+aws lambda update-function-configuration \
+  --function-name fdd-demo-orderProcessor \
+  --environment Variables='{
+    "FC_LAMBDA_URL_PRICECALCULATOR":"https://price-url.lambda-url.us-east-1.on.aws/"
   }'
 ```
 
 ## 🧪 Testing
 
-### Unit Tests
-
-Test individual functions with standard mocking:
-
-```java
-@ExtendWith(MockitoExtension.class)
-class OrderProcessorTest {
-    
-    @Mock
-    private Function<UserData, ValidationResult> userValidator;
-    
-    @Mock
-    private Function<InventoryCheckRequest, InventoryResult> inventoryChecker;
-    
-    @Mock
-    private Function<PaymentRequest, PaymentResult> paymentProcessor;
-    
-    @InjectMocks
-    private OrderProcessorFunction orderProcessor;
-    
-    @Test
-    void shouldProcessValidOrder() {
-        // Given
-        when(userValidator.apply(any())).thenReturn(ValidationResult.valid("OK"));
-        when(inventoryChecker.apply(any())).thenReturn(InventoryResult.available(100));
-        when(paymentProcessor.apply(any())).thenReturn(PaymentResult.success("txn-123"));
-        
-        // When
-        OrderResult result = orderProcessor.apply(createValidOrderRequest());
-        
-        // Then
-        assertThat(result.isSuccess()).isTrue();
-        verify(userValidator).apply(any());
-        verify(inventoryChecker).apply(any());
-        verify(paymentProcessor).apply(any());
-    }
-}
-```
-
-### Integration Tests
-
-Run the complete flow locally:
+### Test Individual Functions
 
 ```bash
-# Start all services and run integration tests
-./scripts/run-integration-tests.sh
+# Test ConfigSupplier (Supplier interface - GET request)
+curl -X GET https://config-url.lambda-url.us-east-1.on.aws/configSupplier
+
+# Test PriceCalculator (Function interface - POST request)
+curl -X POST https://price-url.lambda-url.us-east-1.on.aws/priceCalculator \
+  -H "Content-Type: application/json" \
+  -d '{
+    "productId": "widget-123",
+    "quantity": 5,
+    "customerType": "VIP"
+  }'
+
+# Test Complete Flow
+curl -X POST https://order-url.lambda-url.us-east-1.on.aws/orderProcessor \
+  -H "Content-Type: application/json" \
+  -d '{
+    "productId": "widget-123",
+    "quantity": 8,
+    "customerType": "PREMIUM"
+  }'
+```
+
+### Sample Test Scenarios
+
+```bash
+# Regular Customer Order
+curl -X POST http://localhost:8081/orderProcessor \
+  -H "Content-Type: application/json" \
+  -d '{
+    "productId": "widget-123",
+    "quantity": 3,
+    "customerType": "REGULAR"
+  }'
+# Expected: $89.97 (no discount)
+
+# VIP Customer Order (20% discount)
+curl -X POST http://localhost:8081/orderProcessor \
+  -H "Content-Type: application/json" \
+  -d '{
+    "productId": "widget-123",
+    "quantity": 5,
+    "customerType": "VIP"
+  }'
+# Expected: $119.96 (20% VIP discount)
+
+# Bulk Order (5% bulk discount)
+curl -X POST http://localhost:8081/orderProcessor \
+  -H "Content-Type: application/json" \
+  -d '{
+    "productId": "widget-123",
+    "quantity": 15,
+    "customerType": "REGULAR"
+  }'
+# Expected: $427.31 (bulk discount wins over customer discount)
 ```
 
 ## 🔧 Configuration
@@ -345,9 +373,9 @@ Run the complete flow locally:
 Each microservice can be configured independently:
 
 ```yaml
+# OrderProcessor configuration
 server:
-  port: ${PORT:8081}
-
+  port: 8081
 spring:
   application:
     name: fc-orderprocessor
@@ -355,24 +383,39 @@ spring:
     function:
       definition: orderProcessor
 
-# Remote function URLs
-userValidator:
-  url: ${FC_LAMBDA_URL_USERVALIDATOR:http://localhost:8082/userValidator}
+priceCalculator:
+  url: ${FC_LAMBDA_URL_PRICECALCULATOR:http://localhost:8082/priceCalculator}
 
-inventoryChecker:
-  url: ${FC_LAMBDA_URL_INVENTORYCHECKER:http://localhost:8083/inventoryChecker}
+# PriceCalculator configuration  
+server:
+  port: 8082
+spring:
+  application:
+    name: fc-pricecalculator
+  cloud:
+    function:
+      definition: priceCalculator
 
-paymentProcessor:
-  url: ${FC_LAMBDA_URL_PAYMENTPROCESSOR:http://localhost:8084/paymentProcessor}
+configSupplier:
+  url: ${FC_LAMBDA_URL_CONFIGSUPPLIER:http://localhost:8083/configSupplier}
+
+# ConfigSupplier configuration
+server:
+  port: 8083
+spring:
+  application:
+    name: fc-configsupplier
+  cloud:
+    function:
+      definition: configSupplier
 ```
 
 ### Environment Variables
 
 For AWS Lambda deployment:
 
-- `FC_LAMBDA_URL_USERVALIDATOR` - URL of User Validator Lambda
-- `FC_LAMBDA_URL_INVENTORYCHECKER` - URL of Inventory Checker Lambda  
-- `FC_LAMBDA_URL_PAYMENTPROCESSOR` - URL of Payment Processor Lambda
+- `FC_LAMBDA_URL_PRICECALCULATOR` - URL of Price Calculator Lambda
+- `FC_LAMBDA_URL_CONFIGSUPPLIER` - URL of Config Supplier Lambda
 
 ## 🛠️ Technology Stack
 
@@ -395,6 +438,11 @@ For AWS Lambda deployment:
 - **Quarkus** - Kubernetes-native and reactive capabilities
 - **GraalVM** - Native image compilation for ultra-fast startup
 
+### Enhanced Functional Interface Support
+- **Consumer<T>** - For fire-and-forget operations (notifications, logging)
+- **BiFunction<T,U,R>** - For functions requiring two input parameters
+- **Predicate<T>** - For validation and filtering operations
+
 ### Enhanced Features
 - **Service Discovery** - Automatic function URL discovery
 - **Circuit Breakers** - Resilience patterns for function calls
@@ -407,7 +455,7 @@ We welcome contributions! Areas where we need help:
 
 1. **Multi-cloud adapters** (GCP, Azure)
 2. **Alternative tech stack support** (Micronaut, Quarkus)
-3. **Enhanced testing utilities**
+3. **Enhanced functional interface support** (Consumer, BiFunction, Predicate)
 4. **Documentation and examples**
 5. **Performance optimizations**
 

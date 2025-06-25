@@ -1,11 +1,11 @@
 server:
-  port: 8081
+  port: 8083
   servlet:
     context-path: /
 
 spring:
   application:
-    name: fc-orderprocessor
+    name: fc-configsupplier
   main:
     web-application-type: servlet
     allow-bean-definition-overriding: true
@@ -17,9 +17,9 @@ spring:
       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
   cloud:
     function:
-      definition: orderProcessor
+      definition: configSupplier
       scan:
-        packages: com.fc.serverless.orderprocessor
+        packages: com.fc.serverless.configsupplier
       web:
         export:
           enabled: true
@@ -28,10 +28,6 @@ spring:
       fail-on-empty-beans: false
     deserialization:
       fail-on-unknown-properties: false
-# Remote function URLs for cross-service calls
-priceCalculator:
-  url: ${FC_LAMBDA_URL_PRICECALCULATOR:http://localhost:8082/priceCalculator}
-
 # Logging
 logging:
   level:

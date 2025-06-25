@@ -1,59 +1,46 @@
 package com.fc.serverless.sample.domain;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.math.BigDecimal;
 
 public class OrderResult {
     private boolean success;
     private String orderId;
-    private String transactionId;
+    private BigDecimal totalPrice;
     private String message;
 
-    private OrderResult() {}
+    public OrderResult() {}
 
-    @JsonCreator
-    private OrderResult(@JsonProperty("success") boolean success,
-                        @JsonProperty("orderId") String orderId,
-                        @JsonProperty("transactionId") String transactionId,
-                        @JsonProperty("message") String message) {
+    private OrderResult(boolean success, String orderId, BigDecimal totalPrice, String message) {
         this.success = success;
         this.orderId = orderId;
-        this.transactionId = transactionId;
+        this.totalPrice = totalPrice;
         this.message = message;
     }
 
-    public static OrderResult success(String orderId) {
-        return new OrderResult(true, orderId, null, "Order created successfully");
-    }
-
-    public static OrderResult success(String orderId, String transactionId) {
-        return new OrderResult(true, orderId, transactionId, "Order created and payment processed successfully");
+    public static OrderResult success(String orderId, BigDecimal totalPrice, String message) {
+        return new OrderResult(true, orderId, totalPrice, message);
     }
 
     public static OrderResult failed(String message) {
         return new OrderResult(false, null, null, message);
     }
 
-    // Getters with JSON annotations
-    @JsonProperty("success")
+    // Getters and setters
     public boolean isSuccess() { return success; }
+    public void setSuccess(boolean success) { this.success = success; }
 
-    @JsonProperty("orderId")
     public String getOrderId() { return orderId; }
+    public void setOrderId(String orderId) { this.orderId = orderId; }
 
-    @JsonProperty("transactionId")
-    public String getTransactionId() { return transactionId; }
+    public BigDecimal getTotalPrice() { return totalPrice; }
+    public void setTotalPrice(BigDecimal totalPrice) { this.totalPrice = totalPrice; }
 
-    @JsonProperty("message")
     public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
 
     @Override
     public String toString() {
-        return "OrderResult{" +
-                "success=" + success +
-                ", orderId='" + orderId + '\'' +
-                ", transactionId='" + transactionId + '\'' +
-                ", message='" + message + '\'' +
-                '}';
+        return "OrderResult{success=" + success + ", orderId='" + orderId +
+                "', totalPrice=" + totalPrice + ", message='" + message + "'}";
     }
 }

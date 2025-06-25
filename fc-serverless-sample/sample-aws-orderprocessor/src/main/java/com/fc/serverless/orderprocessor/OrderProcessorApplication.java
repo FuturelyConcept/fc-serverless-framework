@@ -1,11 +1,10 @@
 package com.fc.serverless.orderprocessor;
 
-import com.fc.serverless.sample.domain.CreateOrderRequest;
+import com.fc.serverless.sample.domain.OrderRequest;
 import com.fc.serverless.sample.domain.OrderResult;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 
 import java.util.function.Function;
 
@@ -23,7 +22,7 @@ public class OrderProcessorApplication {
 
     // Explicitly define the function bean to avoid Spring Cloud Function conflicts
     @Bean("orderProcessor")
-    public Function<CreateOrderRequest, OrderResult> orderProcessor() {
+    public Function<OrderRequest, OrderResult> orderProcessor() {
         return new OrderProcessorFunction();
     }
 }

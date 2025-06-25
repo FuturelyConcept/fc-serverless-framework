@@ -1,0 +1,56 @@
+# Common application.yml for all Lambda functions
+server:
+  port: ${PORT:8082}
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:fc-lambda-function}
+  main:
+    web-application-type: servlet
+    allow-bean-definition-overriding: true
+    lazy-initialization: true  # Optimize cold start
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+  cloud:
+    function:
+      definition: ${FUNCTION_NAME:priceCalculator}
+      scan:
+        packages: ${SCAN_PACKAGES:com.fc.serverless.pricecalculator}
+      web:
+        export:
+          enabled: true
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+      accept-empty-string-as-null-object: true
+
+# Remote function URL
+configSupplier:
+  url: ${FC_LAMBDA_URL_CONFIGSUPPLIER:http://localhost:8083/configSupplier}
+
+# AWS Lambda optimization
+aws:
+  lambda:
+    # Enable AWS Lambda runtime optimizations
+    optimization:
+      enabled: true
+
+# Logging optimized for CloudWatch
+logging:
+  level:
+    com.fc: INFO
+    org.springframework.cloud.function: WARN
+    org.springframework.web: WARN
+    org.springframework.security: OFF
+    root: WARN
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] %logger{36} - %msg%n"
