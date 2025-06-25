@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 8081
   servlet:
     context-path: /
 
@@ -19,6 +19,15 @@ spring:
       definition: orderProcessor,sup
       scan:
         packages: com.fc.serverless.orderprocessor
+
+userValidator:
+  url: localhost:8082/userValidator
+
+inventoryChecker:
+  url: localhost:8083/inventoryChecker
+
+paymentProcessor:
+  url: localhost:8084/paymentProcessor
 
 # Logging
 logging:

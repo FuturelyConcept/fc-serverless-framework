@@ -1,9 +1,9 @@
 package com.fc.serverless.orderprocessor;
 
 import com.fc.serverless.sample.domain.*;
+import com.fc.serverless.core.annotation.RemoteFunction;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -25,15 +25,15 @@ public class OrderProcessorFunction implements Function<CreateOrderRequest, Orde
     // FDD framework will automatically create HTTP proxies to call the other Lambdas!
 
     @Autowired
-    @Qualifier("userValidator")
+    @RemoteFunction(name = "userValidator")
     private Function<UserData, ValidationResult> userValidator;
 
     @Autowired
-    @Qualifier("inventoryChecker")
+    @RemoteFunction(name = "inventoryChecker")
     private Function<InventoryCheckRequest, InventoryResult> inventoryChecker;
 
     @Autowired
-    @Qualifier("paymentProcessor")
+    @RemoteFunction(name = "paymentProcessor")
     private Function<PaymentRequest, PaymentResult> paymentProcessor;
 
     @Override

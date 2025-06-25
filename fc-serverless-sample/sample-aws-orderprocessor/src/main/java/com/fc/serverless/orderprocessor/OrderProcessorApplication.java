@@ -1,8 +1,9 @@
-package com.fdd.lambda.orderprocessor;
+package com.fc.serverless.orderprocessor;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+
 import java.util.function.Supplier;
 /**
  * 🚀 Dedicated UserValidator Lambda Application

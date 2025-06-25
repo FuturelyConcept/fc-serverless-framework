@@ -1,5 +1,4 @@
-// fdd-lambda-uservalidator/src/main/java/com/fdd/lambda/uservalidator/UserValidatorApplication.java
-package com.fdd.lambda.uservalidator;
+package com.fc.serverless.uservalidator;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

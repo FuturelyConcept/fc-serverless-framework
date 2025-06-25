@@ -9,6 +9,12 @@
     <file url="file://$PROJECT_DIR$/fc-serverless-sample/function1/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/fc-serverless-sample/function2/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/fc-serverless-sample/function2/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-inventorychecker/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-inventorychecker/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-orderprocessor/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-orderprocessor/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-paymentprocessor/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-paymentprocessor/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-uservalidator/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-uservalidator/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/fc-serverless-sample/src/main/java" charset="UTF-8" />
