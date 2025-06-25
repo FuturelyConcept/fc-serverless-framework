@@ -7,6 +7,8 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 public class RemoteFunctionBeanPostProcessor implements BeanPostProcessor {
 
@@ -32,14 +34,36 @@ public class RemoteFunctionBeanPostProcessor implements BeanPostProcessor {
                 field.setAccessible(true);
                 try {
                     RemoteFunction annotation = field.getAnnotation(RemoteFunction.class);
-                    Object proxy = proxyFactory.createProxy(field.getType(), annotation, environment);
+
+                    // Extract the return type from the field's generic type
+                    Class<?> returnType = extractReturnTypeFromField(field);
+
+                    Object proxy = proxyFactory.createProxy(field.getType(), annotation, environment, returnType);
                     field.set(bean, proxy);
-                    System.out.println("🔗 Injected remote function proxy for: " + annotation.name() + " into " + beanName);
+                    System.out.println("🔗 Injected remote function proxy for: " + annotation.name() +
+                            " into " + beanName + " with return type: " + returnType.getName());
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Failed to inject remote function proxy for field: " + field.getName(), e);
                 }
             }
         }
         return bean;
+    }
+
+    private Class<?> extractReturnTypeFromField(Field field) {
+        Type genericType = field.getGenericType();
+
+        if (genericType instanceof ParameterizedType) {
+            ParameterizedType paramType = (ParameterizedType) genericType;
+            Type[] typeArgs = paramType.getActualTypeArguments();
+
+            // For Function<Input, Output>, we want the second type argument (Output)
+            if (typeArgs.length == 2 && typeArgs[1] instanceof Class) {
+                return (Class<?>) typeArgs[1];
+            }
+        }
+
+        // Fallback to Object if we can't determine the type
+        return Object.class;
     }
 }

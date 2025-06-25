@@ -1,6 +1,8 @@
 package com.fc.serverless.proxy;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fc.serverless.core.annotation.RemoteFunction;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
@@ -19,15 +21,21 @@ public class RemoteFunctionProxyFactory {
 
     public RemoteFunctionProxyFactory() {
         this.restTemplate = new RestTemplate();
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = createObjectMapper();
     }
 
-    public Object createProxy(Class<?> type, RemoteFunction annotation, Environment environment) {
+    private ObjectMapper createObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        return mapper;
+    }
+
+    public Object createProxy(Class<?> functionType, RemoteFunction annotation, Environment environment, Class<?> returnType) {
         String functionName = annotation.name();
 
         InvocationHandler handler = (proxy, method, args) -> {
             try {
-                // Get the URL for the remote function
                 String url = environment.getProperty(functionName + ".url");
 
                 if (url == null) {
@@ -37,28 +45,25 @@ public class RemoteFunctionProxyFactory {
 
                 System.out.println("🌐 Making remote call to: " + functionName + " at " + url);
 
-                // Convert the first argument to JSON - this ensures clean serialization
                 Object inputArg = args[0];
                 String jsonInput = objectMapper.writeValueAsString(inputArg);
                 System.out.println("📤 Request: " + jsonInput);
 
-                // Set up HTTP headers
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
 
                 HttpEntity<String> request = new HttpEntity<>(jsonInput, headers);
-
-                // Make the HTTP call
                 ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
                 System.out.println("📥 Response status: " + response.getStatusCode());
                 System.out.println("📥 Response body: " + response.getBody());
+                System.out.println("🔍 Expected return type: " + returnType.getName());
 
-                // Convert response back to the expected return type
-                Class<?> returnType = method.getReturnType();
                 Object result = objectMapper.readValue(response.getBody(), returnType);
 
                 System.out.println("✅ Remote call successful for: " + functionName);
+                System.out.println("🔍 Actual result type: " + result.getClass().getName());
                 return result;
 
             } catch (Exception e) {
@@ -69,9 +74,14 @@ public class RemoteFunctionProxyFactory {
         };
 
         return Proxy.newProxyInstance(
-                type.getClassLoader(),
-                new Class<?>[]{type},
+                functionType.getClassLoader(),
+                new Class<?>[]{functionType},
                 handler
         );
+    }
+
+    // Backward compatibility method - delegates to the new method with Object.class as return type
+    public Object createProxy(Class<?> functionType, RemoteFunction annotation, Environment environment) {
+        return createProxy(functionType, annotation, environment, Object.class);
     }
 }
