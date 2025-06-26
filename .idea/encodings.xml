@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/fc-serverless-core/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-core/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/fc-serverless-sample-domain/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/fc-serverless-sample-domain/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/function1/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/function1/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/function2/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/function2/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-configsupplier/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-configsupplier/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-orderprocessor/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-orderprocessor/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-pricecalculator/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-pricecalculator/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-uservalidator/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/sample-aws-uservalidator/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-sample/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-starter/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/fc-serverless-starter/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-aws-starter/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-aws-starter/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/fc-serverless-sample-domain/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/fc-serverless-sample-domain/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/function1/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/function1/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/function2/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/function2/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/sample-aws-configsupplier/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/sample-aws-configsupplier/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/sample-aws-orderprocessor/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/sample-aws-orderprocessor/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/sample-aws-pricecalculator/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/sample-aws-pricecalculator/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/sample-aws-uservalidator/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/sample-aws-uservalidator/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/sample-shared-domain/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/sample-shared-domain/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-function-mesh-samples/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>

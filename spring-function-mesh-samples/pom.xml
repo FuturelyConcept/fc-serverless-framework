@@ -4,17 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.fc</groupId>
-        <artifactId>fc-serverless-framework</artifactId>
+        <groupId>com.futurelyconcept</groupId>
+        <artifactId>spring-function-mesh</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fc-serverless-sample</artifactId>
+    <artifactId>spring-function-mesh-samples</artifactId>
     <packaging>pom</packaging>
-    <name>fc-serverless-sample</name>
+    <name>spring function mesh sample for example</name>
 
     <modules>
-        <module>fc-serverless-sample-domain</module>
+        <module>sample-shared-domain</module>
         <module>sample-aws-orderprocessor</module>
         <module>sample-aws-configsupplier</module>
         <module>sample-aws-pricecalculator</module>

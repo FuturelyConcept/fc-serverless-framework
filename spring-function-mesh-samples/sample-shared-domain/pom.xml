@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.fc</groupId>
-        <artifactId>fc-serverless-sample</artifactId>
+        <groupId>com.futurelyconcept</groupId>
+        <artifactId>spring-function-mesh-samples</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>fc-sample-domain</artifactId>
+    <artifactId>sample-shared-domain</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>FDD Demo - Shared Domain Classes</name>
