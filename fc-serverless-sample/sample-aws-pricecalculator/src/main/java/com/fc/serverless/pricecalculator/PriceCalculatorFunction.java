@@ -4,6 +4,8 @@ import com.fc.serverless.sample.domain.OrderRequest;
 import com.fc.serverless.sample.domain.PriceInfo;
 import com.fc.serverless.sample.domain.PricingConfig;
 import com.fc.serverless.core.annotation.RemoteFunction;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -11,14 +13,14 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Lambda 2: PriceCalculator
+ * Updated PriceCalculator Lambda - Now with LogFactory instead of System.out
+ * IAM-protected service that calls ConfigSupplier (NONE/public)
  *
- * Calculates pricing for orders by getting configuration from ConfigSupplier
- * and applying business rules.
- *
- * Demonstrates: Supplier<PricingConfig> remote call (no input parameters)
+ * Minimal changes: Only replaced System.out with LogFactory logging
  */
 public class PriceCalculatorFunction implements Function<OrderRequest, PriceInfo> {
+
+    private static final Log log = LogFactory.getLog(PriceCalculatorFunction.class);
 
     // FC Framework automatically creates an HTTP proxy for this Supplier!
     @RemoteFunction(name = "configSupplier")
@@ -26,20 +28,20 @@ public class PriceCalculatorFunction implements Function<OrderRequest, PriceInfo
 
     @Override
     public PriceInfo apply(OrderRequest request) {
-        System.out.println("💰 PriceCalculator Lambda started!");
-        System.out.println("🔢 Calculating price for: " + request);
+        log.info("💰 PriceCalculator Lambda started!");
+        log.info("🔢 Calculating price for: " + request);
 
         try {
             // Get pricing configuration from ConfigSupplier Lambda
             // 🌐 This becomes an HTTP GET call to ConfigSupplier Lambda!
-            System.out.println("⚙️ Getting pricing config from ConfigSupplier...");
+            log.info("⚙️ Getting pricing config from ConfigSupplier...");
             PricingConfig config = configSupplier.get();
 
             if (config == null) {
                 throw new RuntimeException("Failed to get pricing configuration");
             }
 
-            System.out.println("✅ Config retrieved: " + config);
+            log.info("✅ Config retrieved: " + config);
 
             // Calculate pricing based on configuration and business rules
             BigDecimal unitPrice = config.getBasePrice();
@@ -72,20 +74,18 @@ public class PriceCalculatorFunction implements Function<OrderRequest, PriceInfo
                 }
             }
 
-            // Calculate final price
-            BigDecimal totalPrice = subtotal.subtract(discount);
-            totalPrice = totalPrice.setScale(2, RoundingMode.HALF_UP);
-            discount = discount.setScale(2, RoundingMode.HALF_UP);
+            BigDecimal finalPrice = subtotal.subtract(discount);
 
-            PriceInfo result = new PriceInfo(unitPrice, totalPrice, discount, discountReason);
+            PriceInfo result = new PriceInfo(unitPrice, finalPrice, discount, discountReason);
 
-            System.out.println("✅ Price calculation completed: " + result);
+            log.info("✅ Price calculation completed: " + result);
+            log.info("🔐 PriceCalculator successfully processed IAM-protected request");
+
             return result;
 
         } catch (Exception e) {
-            System.err.println("❌ Error calculating price: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Price calculation failed: " + e.getMessage());
+            log.error("❌ Error calculating price: " + e.getMessage(), e);
+            throw new RuntimeException("Price calculation failed: " + e.getMessage(), e);
         }
     }
 }

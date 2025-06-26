@@ -9,7 +9,7 @@ spring:
   main:
     web-application-type: servlet
     allow-bean-definition-overriding: true
-    lazy-initialization: ${LAMBDA_MODE:false}  # Enable lazy init in Lambda
+    lazy-initialization: ${LAMBDA_MODE:false}
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
@@ -30,36 +30,26 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
 
-# Remote function URLs for cross-service calls
-# Remote function URL
-priceCalculator:
-  url: ${FC_LAMBDA_URL_PRICECALCULATOR:http://localhost:8082/priceCalculator}
-
-# Option 2: FC Framework configuration (recommended for new projects)
+# ENHANCED FC Framework Configuration with Auth Types
 fc:
   functions:
-    # Configure specific ports for local development
-    userValidator:
-      port: 8082
-    inventoryChecker:
-      port: 8083
-    paymentProcessor:
-      port: 8084
-    # Global configuration
-    default:
-      port:
-        base: 8080  # Base port for auto-generated ports
+    # PriceCalculator - IAM protected
+    priceCalculator:
+      url: ${FC_LAMBDA_URL_PRICECALCULATOR:http://localhost:8085/priceCalculator}
+      authType: ${FC_AUTH_PRICECALCULATOR:AWS_IAM}
 
 # Environment detection
 environment:
   type: ${ENVIRONMENT_TYPE:local}
   lambda: ${AWS_LAMBDA_FUNCTION_NAME:#{null}}
 
-# Logging
+# Enhanced Logging with Apache Commons Logging
 logging:
   level:
-    com.fc: ${LOG_LEVEL:DEBUG}
-    org.springframework.cloud.function: ${LOG_LEVEL:DEBUG}
+    com.fc: ${LOG_LEVEL:INFO}
+    com.fc.serverless.auth: DEBUG
+    com.fc.serverless.proxy: DEBUG
+    org.springframework.cloud.function: WARN
     org.springframework.web: WARN
     org.springframework.security: OFF
     root: ${ROOT_LOG_LEVEL:WARN}

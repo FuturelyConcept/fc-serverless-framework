@@ -4,46 +4,50 @@ import com.fc.serverless.sample.domain.OrderRequest;
 import com.fc.serverless.sample.domain.OrderResult;
 import com.fc.serverless.sample.domain.PriceInfo;
 import com.fc.serverless.core.annotation.RemoteFunction;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.function.Function;
 
 /**
- * Lambda 1: OrderProcessor
+ * Updated OrderProcessor Lambda - Now with proper logging and calls PriceCalculator (IAM-protected)
  *
  * This is the main orchestrator that receives order requests and calls
  * the PriceCalculator to get pricing information.
  *
- * Demonstrates: Function<OrderRequest, PriceInfo> remote call
+ * Demonstrates: Function<OrderRequest, PriceInfo> remote call with IAM auth
  */
 public class OrderProcessorFunction implements Function<OrderRequest, OrderResult> {
 
-    // FC Framework automatically creates an HTTP proxy for this!
+    private static final Log log = LogFactory.getLog(OrderProcessorFunction.class);
+
+    // FC Framework automatically creates an HTTP proxy for this with IAM auth!
     @RemoteFunction(name = "priceCalculator")
     private Function<OrderRequest, PriceInfo> priceCalculator;
 
     @Override
     public OrderResult apply(OrderRequest request) {
-        System.out.println("🚀 OrderProcessor Lambda started!");
-        System.out.println("📋 Processing order: " + request);
+        log.info("🚀 OrderProcessor Lambda started!");
+        log.info("📋 Processing order: " + request);
 
         try {
             // Validate input
             if (request == null || request.getProductId() == null || request.getQuantity() <= 0) {
-                System.out.println("❌ Invalid order request");
+                log.error("❌ Invalid order request");
                 return OrderResult.failed("Invalid order request");
             }
 
-            // Call PriceCalculator Lambda via FC Framework proxy
-            // 🌐 This becomes an HTTP call to PriceCalculator Lambda!
-            System.out.println("💰 Calling PriceCalculator Lambda...");
+            // Call PriceCalculator Lambda via FC Framework proxy with IAM authentication
+            // 🌐 This becomes an HTTP call to PriceCalculator Lambda with AWS SigV4 signing!
+            log.info("💰 Calling PriceCalculator Lambda (🔐 IAM-protected)...");
             PriceInfo priceInfo = priceCalculator.apply(request);
 
             if (priceInfo == null || priceInfo.getTotalPrice() == null) {
-                System.out.println("❌ Price calculation failed");
+                log.error("❌ Price calculation failed");
                 return OrderResult.failed("Price calculation failed");
             }
 
-            System.out.println("✅ Price calculated: " + priceInfo);
+            log.info("✅ Price calculated: " + priceInfo);
 
             // Generate order ID and create successful result
             String orderId = "order-" + System.currentTimeMillis();
@@ -51,12 +55,11 @@ public class OrderProcessorFunction implements Function<OrderRequest, OrderResul
                     priceInfo.getDiscountReason(),
                     priceInfo.getTotalPrice());
 
-            System.out.println("🎉 Order completed: " + orderId);
+            log.info("🎉 Order completed: " + orderId);
             return OrderResult.success(orderId, priceInfo.getTotalPrice(), message);
 
         } catch (Exception e) {
-            System.err.println("❌ Error processing order: " + e.getMessage());
-            e.printStackTrace();
+            log.error("❌ Error processing order: " + e.getMessage(), e);
             return OrderResult.failed("Error processing order: " + e.getMessage());
         }
     }

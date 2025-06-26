@@ -29,8 +29,11 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
 # Remote function URLs for cross-service calls
-priceCalculator:
-  url: ${FC_LAMBDA_URL_PRICECALCULATOR:http://localhost:8082/priceCalculator}
+fc:
+  functions:
+    priceCalculator:
+      url: ${FC_LAMBDA_URL_PRICECALCULATOR:http://localhost:8082/priceCalculator}
+      authType: ${FC_AUTH_TYPE_PRICECALCULATOR:AWS_IAM}
 
 # Logging
 logging:

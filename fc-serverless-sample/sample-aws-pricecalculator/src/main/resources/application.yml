@@ -33,9 +33,11 @@ spring:
       fail-on-unknown-properties: false
       accept-empty-string-as-null-object: true
 
-# Remote function URL
-configSupplier:
-  url: ${FC_LAMBDA_URL_CONFIGSUPPLIER:http://localhost:8083/configSupplier}
+fc:
+  functions:
+    configSupplier:
+      url: ${FC_LAMBDA_URL_CONFIGSUPPLIER:http://localhost:8086/configSupplier}
+      authType: ${FC_AUTH_TYPE_CONFIGSUPPLIER:AWS_IAM}
 
 # AWS Lambda optimization
 aws:
