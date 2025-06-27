@@ -254,7 +254,7 @@ aws lambda create-function \
   --runtime java17 \
   --role $EXECUTION_ROLE_ARN \
   --handler org.springframework.cloud.function.adapter.aws.FunctionInvoker \
-  --zip-file fileb://spring-function-mesh-samples/sample-aws-configsupplier/target/sample-aws-configsupplier-1.0-SNAPSHOT.jar \
+  --zip-file fileb://spring-function-mesh-samples/sample-aws-configsupplier/target/sample-aws-configsupplier-1.0.0-SNAPSHOT-aws.jar \
   --timeout 30 \
   --memory-size 512 \
   --environment Variables='{
@@ -267,7 +267,7 @@ aws lambda create-function \
   --runtime java17 \
   --role $EXECUTION_ROLE_ARN \
   --handler org.springframework.cloud.function.adapter.aws.FunctionInvoker \
-  --zip-file fileb://spring-function-mesh-samples/sample-aws-pricecalculator/target/sample-aws-pricecalculator-1.0-SNAPSHOT.jar \
+  --zip-file fileb://spring-function-mesh-samples/sample-aws-pricecalculator/target/sample-aws-pricecalculator-1.0.0-SNAPSHOT-aws.jar \
   --timeout 30 \
   --memory-size 512 \
   --environment Variables='{
@@ -280,7 +280,7 @@ aws lambda create-function \
   --runtime java17 \
   --role $EXECUTION_ROLE_ARN \
   --handler org.springframework.cloud.function.adapter.aws.FunctionInvoker \
-  --zip-file fileb://spring-function-mesh-samples/sample-aws-orderprocessor/target/sample-aws-orderprocessor-1.0-SNAPSHOT.jar \
+  --zip-file fileb://spring-function-mesh-samples/sample-aws-orderprocessor/target/sample-aws-orderprocessor-1.0.0-SNAPSHOT-aws.jar \
   --timeout 30 \
   --memory-size 512 \
   --environment Variables='{
