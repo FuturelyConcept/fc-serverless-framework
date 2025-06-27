@@ -18,11 +18,12 @@
         <wrapper.version>1.0.31.RELEASE</wrapper.version>
         <aws-lambda-events.version>3.14.0</aws-lambda-events.version>
         <spring-cloud-function.version>4.1.3</spring-cloud-function.version>
-        <spring-function-mesh.version>1.0-SNAPSHOT</spring-function-mesh.version>
     </properties>
 
+    <groupId>com.futurelyconcept</groupId>
     <artifactId>sample-aws-configsupplier</artifactId>
     <packaging>jar</packaging>
+    <version>1.0.0-SNAPSHOT</version>
     <name>FC Lambda - UserValidator</name>
     <description>Dedicated inventorychecker Lambda function using FC Framework</description>
 
@@ -56,14 +57,14 @@
         <dependency>
             <groupId>com.futurelyconcept</groupId>
             <artifactId>spring-function-mesh-aws-starter</artifactId>
-            <version>${spring-function-mesh.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Domain Classes -->
         <dependency>
             <groupId>com.futurelyconcept</groupId>
             <artifactId>sample-shared-domain</artifactId>
-            <version>${spring-function-mesh.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <dependencyManagement>

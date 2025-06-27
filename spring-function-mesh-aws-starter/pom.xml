@@ -7,11 +7,10 @@
     <parent>
         <groupId>com.futurelyconcept</groupId>
         <artifactId>spring-function-mesh</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>spring-function-mesh-aws-starter</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Spring Function Mesh Starter for AWS Platform</name>
 
@@ -108,7 +107,7 @@
         <dependency>
             <groupId>com.futurelyconcept</groupId>
             <artifactId>spring-function-mesh-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Optional: Configuration processor for IDE support -->
